@@ -1,0 +1,32 @@
+# Ignore environment variable files containing secrets
+.env
+.env.*
+# Ignore Python cache files
+__pycache__/
+*.py[cod]
+# Ignore virtual environment directories
+venv/
+env/
+# Ignore IDE specific files
+.vscode/
+.idea/
+# Ignore log files
+*.log
+# Ignore compiled files
+*.so
+*.dll
+*.dylib
+# Ignore distribution/build directories
+build/
+dist/
+.eggs/
+*.egg-info/
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+# Ignore coverage reports
+htmlcov/
+.coverage
+.coverage.*
+# Ignore test result files
+test-results/
+.junit.xml
