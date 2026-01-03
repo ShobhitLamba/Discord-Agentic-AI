@@ -11,7 +11,12 @@ class Reminder(BaseModel):
     end_time: str
     description: str
 
+class PlaySongRequest(BaseModel):
+    song: str
+    artist: str = None
+
 SWIFT_EXECUTABLE = "./SetReminder"
+SEARCHSONG_EXECUTABLE = "./SearchSong"
 
 @app.post("/setreminder")
 async def set_reminder(reminder: Reminder):
@@ -35,3 +40,22 @@ async def set_reminder(reminder: Reminder):
         return {"status": "error", "output": e.stderr}
     except subprocess.TimeoutExpired:
         return {"status": "error", "output": "Calendar operation timed out"}
+
+@app.post("/searchsong")
+async def search_song(request: PlaySongRequest):
+    try:
+        args = [SEARCHSONG_EXECUTABLE, request.song]
+        if request.artist:
+            args.append(request.artist)
+        result = subprocess.run(
+            args,
+            capture_output=True,
+            text=True,
+            timeout=15,
+            check=True
+        )
+        return {"status": "success", "output": result.stdout}
+    except subprocess.CalledProcessError as e:
+        return {"status": "error", "output": e.stderr}
+    except subprocess.TimeoutExpired:
+        return {"status": "error", "output": "Search song operation timed out"}

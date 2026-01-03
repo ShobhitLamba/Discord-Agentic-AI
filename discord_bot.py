@@ -166,6 +166,68 @@ async def reminder_help(interaction: discord.Interaction):
     
     await interaction.response.send_message(embed=embed)
 
+@bot.tree.command(name="searchsonghelp", description="Get help on using the searchsong command")
+async def searchsong_help(interaction: discord.Interaction):
+    """Show help information for the searchsong command"""
+    embed = discord.Embed(
+        title="🎵 SearchSong Command Help",
+        description="This command opens Apple Music and searches for a song by name (and optional artist).",
+        color=discord.Color.orange()
+    )
+    embed.add_field(
+        name="Command",
+        value="`/searchsong`",
+        inline=False
+    )
+    embed.add_field(
+        name="Parameters",
+        value=(
+            "• **song**: Name of the song (required)\n"
+            "• **artist**: Name of the artist (optional)"
+        ),
+        inline=False
+    )
+    embed.add_field(
+        name="Example",
+        value=(
+            "```\n/searchsong\nsong: Shape of You\nartist: Ed Sheeran\n```"
+        ),
+        inline=False
+    )
+    embed.add_field(
+        name="Note",
+        value="This opens Apple Music with search results. You'll need to manually click play on the desired track.",
+        inline=False
+    )
+    embed.set_footer(text="Requires Apple Music on macOS.")
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="searchsong", description="Search for a song in Apple Music by name and optional artist")
+@app_commands.describe(
+    song="Name of the song",
+    artist="Name of the artist (optional)"
+)
+async def searchsong(
+    interaction: discord.Interaction,
+    song: str,
+    artist: str = None
+):
+    """Send song/artist to FastAPI, which calls Swift executable to search song in Apple Music"""
+    await interaction.response.defer()
+    import requests
+    try:
+        payload = {"song": song}
+        if artist:
+            payload["artist"] = artist
+        response = requests.post("http://localhost:8000/searchsong", json=payload, timeout=3)
+        data = response.json()
+        if data.get("status") == "success":
+            await interaction.followup.send(f"🎵 Opened Apple Music search for: **{song}**" + (f" by **{artist}**" if artist else ""))
+        else:
+            await interaction.followup.send(f"❌ Failed to search song:\n```{data.get('output', 'Unknown error')}```", ephemeral=True)
+    except Exception as e:
+        await interaction.followup.send(f"❌ Error contacting FastAPI: {str(e)}", ephemeral=True)
+
 # Error handler for command errors
 @bot.event
 async def on_command_error(ctx, error):

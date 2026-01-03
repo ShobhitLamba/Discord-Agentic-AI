@@ -1,33 +1,40 @@
-# Discord Reminder Bot
+# Discord Apple Integrations Bot
 
-A Discord bot that creates reminders in your macOS Calendar app using slash commands.
+A Discord bot that integrates with macOS Apple apps using slash commands:
+- **Calendar**: Create reminders in your macOS Calendar app
+- **Apple Music**: Search and open songs in Apple Music
 
 ## Features
 
-- `/setreminder` - Create calendar reminders via Discord
-- `/reminderhelp` - Get help on using the bot
+- `/setreminder` - Create calendar events via Discord
+- `/reminderhelp` - Get help on using the reminder command
+- `/searchsong` - Search and open a song in Apple Music
+- `/searchsonghelp` - Get help on using the searchsong command
 - Calendar integration with macOS Calendar app
+- Apple Music integration via URL scheme
 - Beautiful embeds for confirmation messages
 - Input validation for dates and times
 
 ## Prerequisites
 
-1. **macOS** - Required for Calendar integration
+1. **macOS** - Required for Calendar and Apple Music integration
 2. **Python 3.8+**
 3. **Swift compiler** (comes with Xcode)
 4. **Discord Bot Token** - Create one at [Discord Developer Portal](https://discord.com/developers/applications)
+5. **Apple Music** (optional) - For playing songs
 
 ## Setup Instructions
 
-### 1. Compile the Swift Executable
+### 1. Compile the Swift Executables
 
-First, compile the Swift code that handles Calendar operations:
+First, compile the Swift code that handles Calendar and Apple Music operations:
 
 ```bash
 swiftc SetReminder.swift -o SetReminder
+swiftc SearchSong.swift -o SearchSong
 ```
 
-This creates the `SetReminder` executable that the bot will use.
+This creates the `SetReminder` and `SearchSong` executables that the bot will use.
 
 ### 2. Install Python Dependencies
 
@@ -38,7 +45,7 @@ pip install -r requirements.txt
 Or install manually:
 
 ```bash
-pip install discord.py python-dotenv
+pip install discord.py python-dotenv fastapi uvicorn
 ```
 
 ### 3. Create a Discord Bot
@@ -85,14 +92,30 @@ When you first run the bot and create a reminder, macOS will ask for Calendar ac
 
 ## Running the Bot
 
+### Start the FastAPI Server (Backend)
+
 ```bash
-python discord_bot.py
+python3 fastapi_apple.py
+```
+
+or with uvicorn:
+
+```bash
+uvicorn fastapi_apple:app --reload
+```
+
+### Start the Discord Bot
+
+In a separate terminal:
+
+```bash
+python3 discord_bot.py
 ```
 
 You should see:
 ```
 YourBotName#1234 has connected to Discord!
-Synced 2 command(s)
+Synced 4 command(s)
 ```
 
 ## Usage
@@ -110,10 +133,21 @@ end_time: 15:00
 description: Discuss Q1 goals and project timeline
 ```
 
+### Search a Song in Apple Music
+
+```
+/searchsong
+song: End of Beginning
+artist: Djo
+```
+
+**Note**: The `/searchsong` command opens Apple Music with search results for the song. You'll need to manually click play on the desired track as Apple Music URL schemes don't support auto-play for streaming songs.
+
 ### Get Help
 
 ```
 /reminderhelp
+/searchsonghelp
 ```
 
 ## Date/Time Formats
@@ -137,6 +171,11 @@ description: Discuss Q1 goals and project timeline
 - Go to System Preferences > Security & Privacy > Privacy > Calendars
 - Grant access to Terminal or your IDE
 
+### "Search song operation timed out" error
+- Ensure FastAPI server is running: `python3 fastapi_apple.py`
+- Check that `SearchSong` executable exists and is compiled
+- Verify Apple Music is installed
+
 ### Command not showing up
 - Slash commands can take up to an hour to sync globally
 - Try kicking and re-inviting the bot
@@ -147,30 +186,44 @@ description: Discuss Q1 goals and project timeline
 ```
 .
 ├── discord_bot.py        # Main Discord bot code
+├── fastapi_apple.py      # FastAPI server for Apple integrations
 ├── SetReminder.swift     # Swift code for Calendar integration
-├── SetReminder           # Compiled Swift executable
-├── main.py              # Original FastAPI service (legacy)
-├── requirements.txt     # Python dependencies
-├── .env                 # Environment variables (create this)
-├── .env.example         # Example environment file
-└── README.md           # This file
+├── SetReminder           # Compiled Swift executable for Calendar
+├── SearchSong.swift      # Swift code for Apple Music search integration
+├── SearchSong            # Compiled Swift executable for Apple Music
+├── requirements.txt      # Python dependencies
+├── .env                  # Environment variables (create this)
+├── .env.example          # Example environment file
+└── README.md            # This file
 ```
 
-## Migration from FastAPI
+## Architecture
 
-The bot replaces the FastAPI service with Discord slash commands:
-- FastAPI POST `/set_reminder` → Discord `/setreminder` command
-- Same Swift executable for Calendar integration
-- Better user interface with Discord embeds
-- Input validation and error handling
+The bot uses a three-tier architecture:
+
+1. **Discord Bot** (`discord_bot.py`) - Handles Discord slash commands and user interaction
+2. **FastAPI Server** (`fastapi_apple.py`) - REST API that receives requests from Discord bot
+3. **Swift Executables** (`SetReminder`, `PlaySong`) - Native macOS integration for Calendar and Apple Music
+
+**Flow Example (SetReminder)**:
+```
+Discord /setreminder → discord_bot.py → FastAPI /setreminder → SetReminder executable → macOS Calendar
+```
+
+**Flow Example (SearchSong)**:
+```
+Discord /searchsong → discord_bot.py → FastAPI /searchsong → SearchSong executable → Apple Music (URL scheme)
+```
 
 ## Notes
 
-- This bot runs on the machine where you execute it (needs macOS for Calendar access)
+- This bot runs on the machine where you execute it (needs macOS for Calendar and Apple Music access)
 - Reminders are created in the Calendar app of the machine running the bot
+- Apple Music integration uses URL schemes to open search results (manual play required)
 - Each server member can create reminders that appear in the bot host's Calendar
 - Consider security implications if running in public servers
 
 ## License
 
 MIT License - feel free to modify and use as needed.
+
