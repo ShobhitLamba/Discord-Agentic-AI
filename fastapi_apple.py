@@ -1,10 +1,8 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 import subprocess
-from mangum import Mangum
 
 app = FastAPI()
-lambda_handler = Mangum(app)
 
 class Reminder(BaseModel):
     title: str

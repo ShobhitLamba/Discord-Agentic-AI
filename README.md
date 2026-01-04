@@ -193,7 +193,7 @@ artist: Djo
 ├── SearchSong            # Compiled Swift executable for Apple Music
 ├── requirements.txt      # Python dependencies
 ├── .env                  # Environment variables (create this)
-└── README.md            # This file
+└── README.md             # This file
 ```
 
 ## Architecture
