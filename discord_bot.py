@@ -237,6 +237,16 @@ async def on_command_error(ctx, error):
         await ctx.send(f"❌ An error occurred: {str(error)}")
 
 # Run the bot
+import json
+
+def lambda_handler(event, context):
+    # Example: respond to a scheduled event or API Gateway
+    # You may want to trigger bot logic here, or just return a message
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Discord bot Lambda is alive!')
+    }
+
 if __name__ == "__main__":
     import sys
     

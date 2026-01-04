@@ -30,3 +30,8 @@ htmlcov/
 # Ignore test result files
 test-results/
 .junit.xml
+# Lambda build artifacts
+discord_bot_package/
+fastapi_package/
+aws_lambda_discord_bot_artifact.zip
+aws_lambda_fastapi_artifact.zip
