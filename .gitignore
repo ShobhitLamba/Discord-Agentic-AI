@@ -35,3 +35,12 @@ discord_bot_package/
 fastapi_package/
 aws_lambda_discord_bot_artifact.zip
 aws_lambda_fastapi_artifact.zip
+# Ignore Docker files
+docker-compose.override.yml
+# Ignore system files
+.DS_Store
+Thumbs.db
+# Ignore temporary files
+*.tmp
+*.swp
+*~
